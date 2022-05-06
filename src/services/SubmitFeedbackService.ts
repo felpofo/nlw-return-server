@@ -22,6 +22,9 @@ export class SubmitFeedbackService {
     if (screenshot && !screenshot.startsWith("data:image/png;base64")) 
       throw new Error("Invalid screenshot format.");
 
+    let screenshotTag;
+    if (screenshot) screenshotTag = `<img src="${screenshot}"/>`;
+
     await this.feedbacksRepository.create({
       type,
       comment,
@@ -31,10 +34,13 @@ export class SubmitFeedbackService {
     await this.mailAdapter.sendMail({
       subject: "Novo feedback",
       body: [
+        "<html>",
         "<div style=\"font-family: sans-serif; font-size: 16px; color: #111;\">",
         `<p>Tipo do feedback: ${type}</p>`,
         `<p>Comentário: ${comment}</p>`,
-        "</div>"
+        screenshotTag,
+        "</div>",
+        "</html>",
       ].join("\n")
     });
   }
